@@ -2,7 +2,7 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: ["main"] # sesuaikan dengan nama branch kamu (main/master)
+    branches: ["main"] # Sesuaikan jika nama branch utama kamu 'master'
 
 permissions:
   contents: read
