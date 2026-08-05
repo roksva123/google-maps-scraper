@@ -52,8 +52,23 @@ google-maps-scraper/
 - **Python 3.8+** - Untuk backend
 - **Node.js 16+** - Untuk frontend
 - **Git** - Untuk version control
+- **Docker & Docker Compose** (optional) - Untuk setup yang lebih gampang
 
-### 1️⃣ Backend Setup
+### ⚡ Quick Start dengan Docker (Recommended)
+
+Jika sudah install Docker:
+```bash
+git clone <repo-url>
+cd google-maps-scraper
+docker-compose up
+```
+Buka browser: `http://localhost:5173`
+
+📖 Detail: Lihat [DOCKER_SETUP.md](./DOCKER_SETUP.md)
+
+---
+
+### 1️⃣ Backend Setup (Manual)
 
 ```bash
 # Masuk ke folder backend
