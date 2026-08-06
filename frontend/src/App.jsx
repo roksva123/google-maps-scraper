@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUpRight,
   Clock3,
+  Download,
   MapPin,
   Phone,
   Search,
@@ -9,6 +10,7 @@ import {
   Trash2,
   Zap,
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import './App.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -106,6 +108,87 @@ function App() {
 
   const totalSavedLeads = history.reduce((total, item) => total + item.count, 0);
 
+  const downloadPDF = () => {
+    if (results.length === 0) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    const lineHeight = 7;
+    let yPosition = margin;
+
+    // Title
+    doc.setFontSize(16);
+    doc.setTextColor(40, 40, 40);
+    doc.text('Daftar Cafe/UMKM', margin, yPosition);
+    yPosition += 10;
+
+    // Search info
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Keyword: ${keyword}`, margin, yPosition);
+    yPosition += 6;
+    doc.text(`Total: ${results.length} tempat`, margin, yPosition);
+    yPosition += 10;
+
+    // Divider
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 8;
+
+    // Results list
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+
+    results.forEach((item, index) => {
+      // Check if we need a new page
+      if (yPosition > pageHeight - margin - 10) {
+        doc.addPage();
+        yPosition = margin;
+      }
+
+      // Number and name
+      const text = `${index + 1}. ${item.name}`;
+      doc.text(text, margin + 3, yPosition);
+      yPosition += lineHeight;
+
+      // Address (if available)
+      if (item.address && item.address !== 'Tidak ada alamat') {
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        const addressLines = doc.splitTextToSize(`📍 ${item.address}`, pageWidth - margin * 2 - 5);
+        doc.text(addressLines, margin + 5, yPosition);
+        yPosition += addressLines.length * 5;
+      }
+
+      // Phone (if available)
+      if (item.phone && item.phone !== 'Tidak ada telepon') {
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        doc.text(`☎️ ${item.phone}`, margin + 5, yPosition);
+        yPosition += 5;
+      }
+
+      yPosition += 4;
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    const totalPages = doc.internal.pages.length - 1;
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.text(`Halaman ${i} dari ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+    }
+
+    // Download
+    const filename = `cafe-${keyword.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+  };
+
   return (
     <main className="app-shell" ref={pageRef}>
       <div className="ambient ambient-one" />
@@ -180,6 +263,12 @@ function App() {
               <span>Lead Results</span>
               <h2>{results.length > 0 ? `${results.length} tempat ditemukan` : 'Belum ada hasil'}</h2>
             </div>
+            {results.length > 0 && (
+              <button type="button" onClick={downloadPDF} className="download-button" aria-label="Download PDF">
+                <Download size={18} />
+                Download PDF
+              </button>
+            )}
           </div>
 
           {loading && (

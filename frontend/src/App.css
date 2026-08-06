@@ -164,7 +164,8 @@ a {
 
 .search-button,
 .wa-link,
-.maps-link {
+.maps-link,
+.download-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
